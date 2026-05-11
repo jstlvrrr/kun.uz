@@ -4,6 +4,7 @@ import dasturlash.uz.dto.RegionDto;
 import dasturlash.uz.dto.RegionShortInfoDTO;
 import dasturlash.uz.entity.Region;
 import dasturlash.uz.repository.RegionRepository;
+import dasturlash.uz.util.LanguageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,6 @@ public class RegionService {
     @Autowired
     private RegionRepository regionRepository;
 
-    // Create (ADMIN)
     public RegionDto create(RegionDto dto) {
         Region entity = new Region();
         entity.setNameUz(dto.getNameUz());
@@ -29,7 +29,6 @@ public class RegionService {
         return dto;
     }
 
-    // Get List By Language [cite: 27]
     public List<RegionShortInfoDTO> getByLanguage(String lang) {
         List<Region> entityList = regionRepository.findAllByVisibleTrueOrderByOrderNumber();
         List<RegionShortInfoDTO> dtoList = new ArrayList<>();
@@ -39,13 +38,7 @@ public class RegionService {
             dto.setId(entity.getId());
             dto.setKey(entity.getKey());
 
-            // Tilga qarab nomni tanlash
-            switch (lang.toLowerCase()) {
-                case "uz" -> dto.setName(entity.getNameUz());
-                case "ru" -> dto.setName(entity.getNameRu());
-                case "en" -> dto.setName(entity.getNameEn());
-                default -> dto.setName(entity.getNameUz());
-            }
+            dto.setName(LanguageUtil.pick(lang, entity.getNameUz(), entity.getNameRu(), entity.getNameEn()));
             dtoList.add(dto);
         }
         return dtoList;
